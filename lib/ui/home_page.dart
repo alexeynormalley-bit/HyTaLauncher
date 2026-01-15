@@ -138,21 +138,21 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         const SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
-                          child: DropdownButtonFormField<GameVersion>(
-                            value: _selectedVersion,
-                            isExpanded: true,
-                            decoration: const InputDecoration(labelText: "VERSION", floatingLabelStyle: TextStyle(color: Colors.red)),
-                             dropdownColor: const Color(0xFF101010),
-                            items: _versions.map((v) => DropdownMenuItem(
-                                value: v, 
-                                child: Text(v.name, 
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1E1E1E),
+                                    side: const BorderSide(color: Colors.white24),
+                                    shape: const RoundedRectangleBorder(),
+                                    padding: const EdgeInsets.symmetric(vertical: 22)
+                                ),
+                                onPressed: _showInstalledVersionsDialog,
+                                child: Text(_selectedVersion?.name ?? "SELECT VERSION", 
+                                    style: GoogleFonts.getFont('Doto', color: Colors.white),
                                     overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.getFont('Doto', color: Colors.white)
-                                )
-                            )).toList(),
-                            onChanged: _isLoading ? null : (v) => setState(() => _selectedVersion = v),
-                          ),
+                                ),
+                            )
                         ),
                       ],
                     ),
@@ -202,5 +202,72 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  Future<void> _showInstalledVersionsDialog() async {
+      final launcher = context.read<GameLauncher>();
+      
+      List<GameVersion> onlineVersions = [];
+      try {
+         onlineVersions = await launcher.getAvailableVersions(_selectedBranch, (s){}, (p){});
+      } catch (e) {
+      }
+
+      final installedVersions = await launcher.scanInstalledVersions();
+      
+      if (!mounted) return;
+
+      showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+              backgroundColor: Colors.black,
+              shape:  Border.all(color: Colors.white),
+              title: Text("SELECT VERSION", style: GoogleFonts.getFont('Doto', color: Colors.white)),
+              content: SizedBox(
+                  width: 300,
+                  height: 400,
+                  child: ListView(
+                      children: [
+                          if (onlineVersions.isNotEmpty) ...[
+                             Text("Online (Auto-Update)", style: GoogleFonts.getFont('Doto', color: Colors.blueAccent, fontSize: 12)),
+                             const Divider(color: Colors.white24),
+                             ...onlineVersions.map((v) => ListTile(
+                                 title: Text(v.name, style: GoogleFonts.inter(color: Colors.white)),
+                                 onTap: () {
+                                     setState(() {
+                                         _selectedVersion = v;
+                                         launcher.setVersionOverride(null); 
+                                     });
+                                     Navigator.pop(ctx);
+                                 },
+                             ))
+                          ],
+                          const SizedBox(height: 16),
+                          if (installedVersions.isNotEmpty) ...[
+                             Text("Installed (Offline)", style: GoogleFonts.getFont('Doto', color: Colors.greenAccent, fontSize: 12)),
+                             const Divider(color: Colors.white24),
+                              ...installedVersions.map((v) => ListTile(
+                                 title: Text(v.name, style: GoogleFonts.inter(color: Colors.white)),
+                                 subtitle: Text(v.branch, style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                                 onTap: () {
+                                     setState(() {
+                                         _selectedVersion = v;
+                                         launcher.setVersionOverride(v); 
+                                     });
+                                     Navigator.pop(ctx);
+                                 },
+                             ))
+                          ]
+                      ],
+                  ),
+              ),
+              actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text("CANCEL", style: TextStyle(color: Colors.red))
+                  )
+              ],
+          )
+      );
   }
 }

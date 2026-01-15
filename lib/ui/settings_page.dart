@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:hyta_launcher/services/localization_service.dart';
+import 'package:hyta_launcher/services/game_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -49,7 +51,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: const Color(0xFF101010),
 
             ),
-            child: Column(
+            child: SingleChildScrollView(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -110,6 +113,47 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     
                     const SizedBox(height: 24),
+
+                    Text("PATCHER (WIP)", style: GoogleFonts.getFont('Doto', fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54)),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E1E1E),
+                        borderRadius: BorderRadius.circular(0),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: ListTile(
+                        title: Text("APPLY PATCHER (WIP)", style: GoogleFonts.getFont('Doto', color: Colors.white, fontSize: 14)),
+                        subtitle: Text("Patches server for LAN/Offline", style: GoogleFonts.getFont('Doto', color: Colors.white38, fontSize: 10)),
+                        trailing: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent.withOpacity(0.2),
+                            foregroundColor: Colors.blueAccent,
+                             shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                          ),
+                          onPressed: () async {
+                             final launcher = context.read<GameLauncher>();
+                             if (await launcher.isOnlineFixAvailable()) {
+                                await launcher.applyOnlineFix();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Patcher Applied. Check logs.")),
+                                  );
+                                }
+                             } else {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Fix Source not found!")),
+                                  );
+                                }
+                             }
+                          },
+                          child: const Text("INSTALL"),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
                     SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -125,6 +169,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                 ],
             )
+          )
         )
     );
   }

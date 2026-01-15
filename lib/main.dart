@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:hyta_launcher/ui/theme.dart';
 import 'package:hyta_launcher/ui/scaffold.dart';
 import 'package:hyta_launcher/services/game_launcher.dart';
+import 'package:hyta_launcher/services/server_manager.dart';
+import 'package:hyta_launcher/services/world_manager.dart';
 
 import 'package:hyta_launcher/services/localization_service.dart';
 
@@ -21,6 +23,27 @@ class HyTaLauncherApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => GameLauncher()),
+        ChangeNotifierProxyProvider<GameLauncher, ServerManager>(
+          create: (_) => ServerManager(gameDir: '', javaExe: ''),
+          update: (_, gameLauncher, previous) {
+            if (previous != null && previous.gameDir == gameLauncher.gameDir) {
+              return previous;
+            }
+            return ServerManager(
+              gameDir: gameLauncher.gameDir,
+              javaExe: gameLauncher.javaExe,
+            );
+          },
+        ),
+        ChangeNotifierProxyProvider<GameLauncher, WorldManager>(
+          create: (_) => WorldManager(gameDir: ''),
+          update: (_, gameLauncher, previous) {
+            if (previous != null && previous.gameDir == gameLauncher.gameDir) {
+              return previous;
+            }
+            return WorldManager(gameDir: gameLauncher.gameDir);
+          },
+        ),
       ],
       child: AnimatedBuilder(
         animation: LocalizationService(),

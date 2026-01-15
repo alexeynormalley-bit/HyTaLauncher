@@ -8,6 +8,8 @@ import 'package:hyta_launcher/ui/import_page.dart';
 import 'package:hyta_launcher/ui/game_settings_page.dart';
 import 'package:hyta_launcher/ui/settings_page.dart';
 import 'package:hyta_launcher/ui/logs_page.dart';
+import 'package:hyta_launcher/ui/ai_page.dart';
+import 'package:hyta_launcher/ui/worlds_page.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -62,11 +64,13 @@ class _MainScaffoldState extends State<MainScaffold> {
                        children: [
                            const SizedBox(height: 20),
                            _navButton("PLAY", 0),
-                           _navButton("MODS", 1),
-                           _navButton("IMPORT", 2),
+                           _navButton("WORLDS", 1),
+                           _navButton("MODS", 2),
+                           _navButton("IMPORT", 3),
                            const Spacer(),
-                           _navButton("LOGS", 3),
-                           _navButton("SETTINGS", 4),
+                           _navButton("AI [alpha]", 4), 
+                           _navButton("LOGS", 5),
+                           _navButton("SETTINGS", 6),
                            const SizedBox(height: 20),
                        ]
                    ),
@@ -75,15 +79,18 @@ class _MainScaffoldState extends State<MainScaffold> {
                 Expanded(
                     child: ColoredBox(
                       color: Colors.black,
-                      child: IndexedStack(
-                          index: _currentIndex,
-                          children: [
-                               const HomePage(),
-                               const ModsPage(), 
-                               const ImportPage(),
-                               const LogsPage(),
-                               const SettingsPage(),
-                          ],
+                      child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                          child: KeyedSubtree(
+                            key: ValueKey<int>(_currentIndex),
+                            child: _getPage(_currentIndex),
+                          ),
                       ),
                     )
                 )
@@ -119,5 +126,18 @@ class _MainScaffoldState extends State<MainScaffold> {
            ),
         ),
       );
+  }
+  
+  Widget _getPage(int index) {
+    switch (index) {
+      case 0: return const HomePage();
+      case 1: return const WorldsPage();
+      case 2: return const ModsPage();
+      case 3: return const ImportPage();
+      case 4: return const AiPage();
+      case 5: return const LogsPage();
+      case 6: return const SettingsPage();
+      default: return const HomePage();
+    }
   }
 }

@@ -25,8 +25,7 @@ class Butler {
 
     print('Downloading Butler...');
 
-    const butlerUrl =
-        "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default";
+    const butlerUrl = "https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default";
     final zipPath = p.join(launcherDir, 'cache', 'butler.zip');
     await Directory(p.join(launcherDir, 'cache')).create(recursive: true);
 

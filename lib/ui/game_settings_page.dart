@@ -1,95 +1,83 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hyta_launcher/ui/shaders_page.dart';
 import 'package:hyta_launcher/services/shader_service.dart';
 import 'package:hyta_launcher/services/patch_service.dart';
 import 'package:hyta_launcher/services/game_config_service.dart';
 import 'package:hyta_launcher/services/localization_service.dart';
+import 'package:hyta_launcher/services/game_launcher.dart';
 import 'package:path/path.dart' as p;
-
 class GameSettingsPage extends StatefulWidget {
   const GameSettingsPage({super.key});
-
   @override
   State<GameSettingsPage> createState() => _GameSettingsPageState();
 }
-
 class _GameSettingsPageState extends State<GameSettingsPage> {
   late PatchService _patchService;
   late ShaderService _shaderService;
   late GameConfigService _configService;
-  
-
   String _statusMessage = "";
   bool _isBusy = false;
-
-
   final TextEditingController _onlineUrlCtrl = TextEditingController();
   final TextEditingController _ruUrlCtrl = TextEditingController();
-
-
   final TextEditingController _configCtrl = TextEditingController();
   bool _configLoading = true;
-
   @override
   void initState() {
     super.initState();
     _initServices();
   }
-
   Future<void> _initServices() async {
     final home = Platform.environment['HOME'] ?? '/';
     final shareDir = p.join(home, '.local', 'share');
     final gamePath = p.join(shareDir, 'Hytale', 'install', 'release', 'package', 'game', 'latest');
     final userDataDir = p.join(shareDir, 'HyTaLauncher', 'UserData');
     final cacheDir = p.join(userDataDir, 'cache');  
-    
     _patchService = PatchService(gamePath, cacheDir);
     _shaderService = ShaderService(gamePath, userDataDir);
     _configService = GameConfigService(userDataDir);
-    
-
     String online = await _patchService.getUrl(PatchService.PREF_ONLINE_URL);
     if (online.isEmpty) online = PatchService.DEFAULT_ONLINE_URL;
     _onlineUrlCtrl.text = online;
-
     String ru = await _patchService.getUrl(PatchService.PREF_RU_URL);
     if (ru.isEmpty) ru = PatchService.DEFAULT_RU_URL;
     _ruUrlCtrl.text = ru;
-
-
     try {
       String configContent = await _configService.readConfig();
       _configCtrl.text = configContent;
     } catch (e) {
-      _configCtrl.text = "// Error loading config: $e";
+      _configCtrl.text = "https://hytale-services.vercel.app/api/patch";
     } finally {
       if (mounted) setState(() => _configLoading = false);
     }
   }
-  
   Future<void> _saveUrl(String key, String value) async {
       await _patchService.setUrl(key, value);
       if(mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("URL Saved")));
   }
-
   Future<void> _installOnlineFix() async {
-      _runPatchOperation("Online Fix", _onlineUrlCtrl.text, "online_fix");
+      setState(() { _isBusy = true; _statusMessage = "Applying Online Fix (Local)..."; });
+      try {
+          final launcher = context.read<GameLauncher>();
+          await launcher.applyOnlineFix();
+          setState(() { _isBusy = false; _statusMessage = "Online Fix Applied!"; });
+          if(mounted) _showSuccess("Online Fix applied using local files.");
+      } catch (e) {
+          setState(() { _isBusy = false; _statusMessage = "Error: $e"; });
+          _showError("Failed to apply fix: $e");
+      }
   }
-
   Future<void> _installRussifier() async {
       _runPatchOperation("Russifier", _ruUrlCtrl.text, "russifier");
   }
-
   Future<void> _runPatchOperation(String name, String url, String cacheName) async {
        if (url.isEmpty || url.contains("PUT_URL_HERE")) {
            _showError("$name URL is missing! Please paste the link in the field above.");
            return;
        }
-       
        setState(() { _isBusy = true; _statusMessage = "Starting $name..."; });
-       
        try {
            await _patchService.installPatch(url, cacheName, (status) {
                setState(() => _statusMessage = status);
@@ -99,13 +87,11 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
        } catch (e) {
            setState(() { _isBusy = false; _statusMessage = "Error: $e"; });
            _showError("Failed to install $name: $e");
-
            if (e.toString().contains("404")) {
                _showError("Link seems broken (404). Try 'FIND LINK'.");
            }
        }
   }
-
   Future<void> _saveConfig() async {
     setState(() { _isBusy = true; _statusMessage = "Saving Config..."; });
     try {
@@ -117,7 +103,6 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
       _showError("Could not save config: $e");
     }
   }
-
   void _showSuccess(String msg) {
       if (!mounted) return;
       showDialog(context: context, builder: (_) => AlertDialog(
@@ -126,7 +111,6 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
           actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))]
       ));
   }
-
   void _showError(String msg) {
       if (!mounted) return;
       showDialog(context: context, builder: (_) => AlertDialog(
@@ -135,7 +119,6 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
           actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))]
       ));
   }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -154,7 +137,6 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
           Expanded(
             child: TabBarView(
                children: [
-
                    SingleChildScrollView(
                       padding: const EdgeInsets.all(24),
                       child: Column(
@@ -168,9 +150,7 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
                           ]
                       )
                    ),
-
                    const ShadersPage(),
-
                    _configLoading 
                       ? const Center(child: CircularProgressIndicator()) 
                       : Padding(
@@ -224,15 +204,13 @@ class _GameSettingsPageState extends State<GameSettingsPage> {
       ),
     );
   }
-  
   Future<void> _openSearch(String query) async {
       try {
-          await Process.run('xdg-open', ["https://www.google.com/search?q=$query"]);
+          await Process.run('xdg-open', ["https://google.com/search?q=$query"]);
       } catch (e) {
           _showError("Could not open browser: $e");
       }
   }
-
   Widget _patchTile(String title, String subtitle, IconData icon, VoidCallback onTap, TextEditingController ctrl, String key) {
       return Container(
           padding: const EdgeInsets.all(16),
