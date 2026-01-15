@@ -5,7 +5,7 @@
 
 A modern, monochrome Hytale launcher for Linux, built with Flutter.
 
-![Screenshot](preview.png)
+![Screenshot](preview.png?raw=true)
 
 ## Features
 
