@@ -326,7 +326,6 @@ class GameLauncher extends ChangeNotifier {
     }
     
     final assets = [
-      'assets/fix/Server/HytaleServer.jar',
       'assets/fix/Server/start-server.bat',
     ];
 
@@ -343,7 +342,6 @@ class GameLauncher extends ChangeNotifier {
            await targetFile.writeAsBytes(bytes);
         }
       } catch (e) {
-        // Ignore if asset missing (should work if bundled correctly)
         print("Error extracting $assetPath: $e");
       }
     }
@@ -351,11 +349,27 @@ class GameLauncher extends ChangeNotifier {
 
   Future<bool> isOnlineFixAvailable() async {
     await _extractFixAssets();
+    // Check if the critical JAR exists (it's not bundled, so must be placed manually or by git clone)
+    if (!await File(p.join(_fixSourcePath, 'Server', 'HytaleServer.jar')).exists()) {
+        return false;
+    }
     return await Directory(_fixSourcePath).exists();
   }
+
   Future<void> applyOnlineFix() async {
     _logs.add("applying online fix...");
     notifyListeners();
+    
+    await _extractFixAssets();
+    
+    if (!await File(p.join(_fixSourcePath, 'Server', 'HytaleServer.jar')).exists()) {
+      _logs.add("[ERROR] HytaleServer.jar not found!");
+      _logs.add("Please download HytaleServer.jar from GitHub Releases");
+      _logs.add("and place it in: ${_fixSourcePath}/Server/");
+      notifyListeners();
+      return;
+    }
+
     if (!await isOnlineFixAvailable()) {
       _logs.add("online fix source not found at $_fixSourcePath");
       notifyListeners();
