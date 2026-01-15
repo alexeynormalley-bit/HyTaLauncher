@@ -1,9 +1,11 @@
 
 # HyTa Launcher (Linux Port)
 
+**This is a Hytale Crack / Launcher for Linux.**
+
 A modern, monochrome Hytale launcher for Linux, built with Flutter.
 
-![Screenshot](screenshot.png)
+![Screenshot](preview.png)
 
 ## Features
 
