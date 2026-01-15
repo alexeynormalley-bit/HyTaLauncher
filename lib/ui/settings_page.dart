@@ -154,6 +154,51 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
 
                     const SizedBox(height: 24),
+                    Text("DANGER ZONE", style: GoogleFonts.getFont('Doto', fontSize: 12, fontWeight: FontWeight.bold, color: Colors.red)),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        border: Border.all(color: Colors.red.withOpacity(0.5)),
+                      ),
+                      child: ListTile(
+                        title: Text("DELETE GAME VERSION", style: GoogleFonts.getFont('Doto', color: Colors.red, fontSize: 14)),
+                        subtitle: Text("Remove all game files to re-download", style: GoogleFonts.getFont('Doto', color: Colors.white38, fontSize: 10)),
+                        trailing: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.withOpacity(0.3),
+                            foregroundColor: Colors.red,
+                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                          ),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                backgroundColor: Colors.black,
+                                title: Text("DELETE GAME?", style: GoogleFonts.getFont('Doto', color: Colors.red)),
+                                content: Text("This will delete all game files.\nYou will need to re-download the game.", style: GoogleFonts.inter(color: Colors.white70)),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("CANCEL")),
+                                  TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("DELETE", style: TextStyle(color: Colors.red))),
+                                ],
+                              ),
+                            );
+                            if (confirm == true && context.mounted) {
+                              final launcher = context.read<GameLauncher>();
+                              final success = await launcher.deleteInstalledVersion();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(success ? "Game deleted. Ready to re-download." : "Delete failed or no game found")),
+                                );
+                              }
+                            }
+                          },
+                          child: const Text("DELETE"),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
                     SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

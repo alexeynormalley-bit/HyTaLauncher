@@ -1,0 +1,33 @@
+earSide = Сторона
+earSide.left = Левая
+earSide.right = Правая
+earSide.both = Обе
+
+pattern.skull = Узор: Череп
+pattern.star = Узор: Звезда
+pattern.gaia = Узор: Призматическое древо
+pattern.cat = Узор: Кошка
+pattern.bunny = Узор: Кролик
+pattern.unicorn = Узор: Единорог
+pattern.play = Узор: Кнопка «Play»
+pattern.play_inverted = Узор: Инверсия «Play»
+
+pants.dungareesshorts = Комбинезон-шорты
+pants.bracedshorts = Шорты на подтяжках
+pants.dungarees = Комбинезон
+pants.bracedpants = Штаны на подтяжках
+
+default = По умолчанию
+
+overtops.Scavenger_Poncho = Без черепа
+
+capes.no_neck = Без ворота
+
+haircuts.Dreadlocks01.name = Дреды 1
+haircuts.Dreadlocks02.name = Дреды 2
+haircuts.Dreadlocks03.name = Дреды 3
+haircuts.SlickbackCowlick.name = Зачес назад с вихром
+
+headaccessory.Logo_Cap_Movie.name = Кино-логотип
+headaccessory.Logo_Cap_Heart.name = Логотип-сердце
+headaccessory.Logo_Cap_Hypixel.name = Логотип Hypixel

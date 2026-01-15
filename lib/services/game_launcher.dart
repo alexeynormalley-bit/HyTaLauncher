@@ -80,7 +80,7 @@ class GameLauncher extends ChangeNotifier {
     int ver = 1;
     const consecutiveMissesToStop = 5;
     while (consecutiveMisses < consecutiveMissesToStop) {
-      final url = "${Config.patchBaseUrl}/$branch/0/$ver.pwr";
+      final url = "${Config.patchBaseUrl}/linux/amd64/$branch/0/$ver.pwr";
       try {
         final response = await _quickClient.head(Uri.parse(url));
         if (response.statusCode == 200) {
@@ -249,7 +249,7 @@ class GameLauncher extends ChangeNotifier {
     }
     onStatus("Downloading game content...");
     final pwrFile = "${version.version}.pwr";
-    final pwrUrl = "${Config.patchBaseUrl}/${version.branch}/0/$pwrFile";
+    final pwrUrl = "${Config.patchBaseUrl}/linux/amd64/${version.branch}/0/$pwrFile";
     final pwrPath = p.join(_launcherDir, 'cache', "linux_${version.branch}_0_$pwrFile");
     onStatus("Downloading patch $pwrFile...");
     await _downloadFile(pwrUrl, pwrPath, onProgress);
@@ -381,9 +381,39 @@ class GameLauncher extends ChangeNotifier {
       }
       final header = base64Url('{"alg":"HS256","typ":"JWT"}');
       final iat = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      final exp = iat + 86400; // 24 hours
+      final exp = iat + 86400;
       final payload = base64Url('{"sub":"$uuid","name":"$name","scope":"hytale:client","iat":$iat,"exp":$exp}');
       final signature = base64Url('fake_signature_for_insecure_mode');
       return "$header.$payload.$signature";
+  }
+
+  Future<bool> deleteInstalledVersion() async {
+    await init();
+    try {
+      final releaseDir = p.join(_gameDir, 'release');
+      final dir = Directory(releaseDir);
+      
+      if (await dir.exists()) {
+        _logs.add('[Launcher] Deleting installed game version...');
+        notifyListeners();
+        
+        await dir.delete(recursive: true);
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('installed_version');
+        
+        _logs.add('[Launcher] Game files deleted. Ready to re-download.');
+        notifyListeners();
+        return true;
+      } else {
+        _logs.add('[Launcher] No installed version found.');
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _logs.add('[Launcher] Delete failed: $e');
+      notifyListeners();
+      return false;
+    }
   }
 }
