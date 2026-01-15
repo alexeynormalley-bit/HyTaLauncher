@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import 'package:hyta_launcher/services/config.dart';
 import 'package:hyta_launcher/utils/butler.dart';
 import 'package:hyta_launcher/utils/java_manager.dart';
+import 'package:flutter/services.dart';
 class GameVersion {
   final String name;
   final String pwrFile;
@@ -316,8 +317,40 @@ class GameLauncher extends ChangeNotifier {
       await restoreRecursive(Directory(p.join(gameDir, 'Client')));
       await restoreRecursive(Directory(p.join(gameDir, 'Assets')));
   }
-  final String _fixSourcePath = "/home/matvelo/Загрузки/Hytale_Fix_Repair_V3/install/release/package/game/latest";
+  String get _fixSourcePath => p.join(_launcherDir, 'fix_source');
+
+  Future<void> _extractFixAssets() async {
+    final fixDir = Directory(_fixSourcePath);
+    if (!await fixDir.exists()) {
+       await fixDir.create(recursive: true);
+    }
+    
+    final assets = [
+      'assets/fix/Server/HytaleServer.jar',
+      'assets/fix/Server/start-server.bat',
+    ];
+
+    for (final assetPath in assets) {
+      try {
+        final relativePath = assetPath.replaceFirst('assets/fix/', '');
+        final targetPath = p.join(_fixSourcePath, relativePath);
+        final targetFile = File(targetPath);
+        
+        if (!await targetFile.exists()) {
+           await Directory(p.dirname(targetPath)).create(recursive: true);
+           final data = await rootBundle.load(assetPath);
+           final bytes = data.buffer.asUint8List();
+           await targetFile.writeAsBytes(bytes);
+        }
+      } catch (e) {
+        // Ignore if asset missing (should work if bundled correctly)
+        print("Error extracting $assetPath: $e");
+      }
+    }
+  }
+
   Future<bool> isOnlineFixAvailable() async {
+    await _extractFixAssets();
     return await Directory(_fixSourcePath).exists();
   }
   Future<void> applyOnlineFix() async {
