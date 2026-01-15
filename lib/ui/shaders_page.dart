@@ -105,12 +105,12 @@ class _ShadersPageState extends State<ShadersPage> with SingleTickerProviderStat
         children: [
             TabBar(
                 controller: _tabController,
-                indicatorColor: const Color(0xFFFF0000),
-                labelColor: const Color(0xFFFF0000),
+                indicatorColor: Colors.white,
+                labelColor: Colors.white,
                 unselectedLabelColor: Colors.white54,
                 indicatorSize: TabBarIndicatorSize.label,
                 dividerColor: Colors.transparent,
-                labelStyle: GoogleFonts.getFont('Doto', fontWeight: FontWeight.bold),
+                labelStyle: GoogleFonts.roboto(fontWeight: FontWeight.bold),
                 tabs: const [Tab(text: "ASSETS"), Tab(text: "CONFIGURATION")]
             ),
             Expanded(
@@ -140,15 +140,16 @@ class _ShadersPageState extends State<ShadersPage> with SingleTickerProviderStat
             return Container(
                 decoration: BoxDecoration(
                     color: const Color(0xFF101010),
-                    border: Border.all(color: isModified ? const Color(0xFFFF0000) : Colors.white10),
+                    border: Border.all(color: isModified ? Colors.white : Colors.white12),
+                    borderRadius: BorderRadius.circular(16)
                 ),
                 child: Column(children: [
                     Expanded(child: Padding(padding: const EdgeInsets.all(12.0), child: Image.file(file, fit: BoxFit.contain))),
-                    Text(name, style: GoogleFonts.getFont('Doto', color: Colors.white, fontSize: 10), textAlign: TextAlign.center),
+                    Text(name, style: GoogleFonts.roboto(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                     const SizedBox(height: 8),
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        IconButton(icon: const Icon(Icons.upload_file, color: Colors.white70, size: 20), onPressed: () => _replace(file)),
-                        if (isModified) IconButton(icon: const Icon(Icons.undo, color: Color(0xFFFF0000), size: 20), onPressed: () => _reset(file))
+                        IconButton(icon: const Icon(Icons.upload_file, color: Colors.white, size: 20), onPressed: () => _replace(file)),
+                        if (isModified) IconButton(icon: const Icon(Icons.undo, color: Colors.white54, size: 20), onPressed: () => _reset(file))
                     ]),
                     const SizedBox(height: 8),
                 ])
@@ -164,11 +165,21 @@ class _ShadersPageState extends State<ShadersPage> with SingleTickerProviderStat
           padding: const EdgeInsets.all(32),
           children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text("RENDER ENGINE", style: GoogleFonts.getFont('Doto', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24)),
+                  Text("RENDER ENGINE", style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24)),
                   Row(children: [
-                      OutlinedButton.icon(onPressed: _importPreset, icon: const Icon(Icons.download, size: 18), label: const Text("IMPORT")),
+                      OutlinedButton.icon(
+                          onPressed: _importPreset, 
+                          icon: const Icon(Icons.download, size: 18), 
+                          label: const Text("IMPORT"),
+                          style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white))
+                      ),
                       const SizedBox(width: 8),
-                      OutlinedButton.icon(onPressed: _exportPreset, icon: const Icon(Icons.upload, size: 18), label: const Text("EXPORT")),
+                      OutlinedButton.icon(
+                          onPressed: _exportPreset, 
+                          icon: const Icon(Icons.upload, size: 18), 
+                          label: const Text("EXPORT"),
+                          style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white))
+                      ),
                   ])
               ]),
               const SizedBox(height: 32),
@@ -187,9 +198,14 @@ class _ShadersPageState extends State<ShadersPage> with SingleTickerProviderStat
               
               const SizedBox(height: 48),
               SizedBox(width: double.infinity, child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF0000), foregroundColor: Colors.white, padding: const EdgeInsets.all(20), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, 
+                      foregroundColor: Colors.black, 
+                      padding: const EdgeInsets.all(20), 
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32))
+                  ),
                   onPressed: _saveConfig,
-                  child: Text("SAVE CONFIGURATION", style: GoogleFonts.getFont('Doto', fontWeight: FontWeight.bold))
+                  child: Text("SAVE CONFIGURATION", style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 16))
               ))
           ]
       );
@@ -200,13 +216,13 @@ class _ShadersPageState extends State<ShadersPage> with SingleTickerProviderStat
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
              Text(title, style: const TextStyle(color: Colors.white70)),
-             Text(val.toStringAsFixed(0), style: GoogleFonts.getFont('Doto', color: Colors.white, fontWeight: FontWeight.bold)),
+             Text(val.toStringAsFixed(0), style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold)),
           ]),
           Slider(
               value: val.clamp(min, max),
               min: min, max: max,
               divisions: divisions,
-              activeColor: const Color(0xFFFF0000),
+              activeColor: Colors.white,
               inactiveColor: Colors.white10,
               onChanged: (v) => setState(() => _renderSettings[key] = v.toInt()) 
           ),
@@ -223,9 +239,9 @@ class _ShadersPageState extends State<ShadersPage> with SingleTickerProviderStat
       return SwitchListTile(
           title: Text(title, style: const TextStyle(color: Colors.white)),
           value: val,
-          activeColor: const Color(0xFFFF0000),
-          trackColor: MaterialStateProperty.resolveWith((s) => s.contains(MaterialState.selected) ? const Color(0xFFFF0000).withOpacity(0.5) : Colors.black),
-          thumbColor: MaterialStateProperty.resolveWith((s) => s.contains(MaterialState.selected) ? const Color(0xFFFF0000) : Colors.grey),
+          activeColor: Colors.white,
+          trackColor: MaterialStateProperty.resolveWith((s) => s.contains(MaterialState.selected) ? Colors.white54 : Colors.black),
+          thumbColor: MaterialStateProperty.resolveWith((s) => s.contains(MaterialState.selected) ? Colors.white : Colors.grey),
           onChanged: (v) => setState(() {
               if (_renderSettings[key] is int) {
                   _renderSettings[key] = v ? 1 : 0;

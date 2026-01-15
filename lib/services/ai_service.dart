@@ -42,13 +42,12 @@ class AiService {
   String get currentModel => _model;
   String? get apiKey => _apiKey;
 
-  Future<String> sendMessage(String message, List<String> logs) async {
+  Future<String> sendMessage(String message, List<String> clientLogs, List<String> serverLogs) async {
       if (_apiKey == null || _apiKey!.isEmpty) {
           return "Please set your Gemini API Key in the AI settings.";
       }
 
       final contextBuffer = StringBuffer();
-      contextBuffer.writeln("You are an intelligent AI assistant for the HyTaLauncher (Hytale Launcher).");
       contextBuffer.writeln("You are an intelligent AI assistant for the HyTaLauncher (Hytale Launcher).");
       contextBuffer.writeln("Your goal is to help the user manage their launcher configuration and debug issues.");
       
@@ -68,9 +67,15 @@ class AiService {
       contextBuffer.writeln("\n### Diagnostics");
       contextBuffer.writeln("Analyze the logs below for crashes, errors, or status updates. Explain issues clearly.");
       
-      contextBuffer.writeln("\n--- RECENT LOGS ---");
-      final recentLogs = logs.length > 100 ? logs.sublist(logs.length - 100) : logs;
-      for (var log in recentLogs) {
+      contextBuffer.writeln("\n--- CLIENT LOGS ---");
+      final recentClientLogs = clientLogs.length > 50 ? clientLogs.sublist(clientLogs.length - 50) : clientLogs;
+      for (var log in recentClientLogs) {
+          contextBuffer.writeln(log);
+      }
+      
+      contextBuffer.writeln("\n--- SERVER LOGS ---");
+      final recentServerLogs = serverLogs.length > 50 ? serverLogs.sublist(serverLogs.length - 50) : serverLogs;
+      for (var log in recentServerLogs) {
           contextBuffer.writeln(log);
       }
       contextBuffer.writeln("--- END LOGS ---");

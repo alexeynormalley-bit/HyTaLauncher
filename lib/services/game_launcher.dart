@@ -17,6 +17,7 @@ class GameVersion {
   final int prevVersion;
   final int version;
   final bool isLatest;
+  final bool isLocal;
   GameVersion({
     required this.name,
     required this.pwrFile,
@@ -24,6 +25,7 @@ class GameVersion {
     this.prevVersion = 0,
     required this.version,
     this.isLatest = false,
+    this.isLocal = false,
   });
 }
 class GameLauncher extends ChangeNotifier {
@@ -131,7 +133,8 @@ class GameLauncher extends ChangeNotifier {
                              pwrFile: "", 
                              branch: branchName,
                              version: 0, 
-                             isLatest: verName == 'latest'
+                             isLatest: verName == 'latest',
+                             isLocal: true
                          ));
                      }
                  }
@@ -325,9 +328,7 @@ class GameLauncher extends ChangeNotifier {
        await fixDir.create(recursive: true);
     }
     
-    final assets = [
-      'assets/fix/Server/start-server.bat',
-    ];
+    final assets = <String>[];
 
     for (final assetPath in assets) {
       try {
@@ -349,7 +350,6 @@ class GameLauncher extends ChangeNotifier {
 
   Future<bool> isOnlineFixAvailable() async {
     await _extractFixAssets();
-    // Check if the critical JAR exists (it's not bundled, so must be placed manually or by git clone)
     if (!await File(p.join(_fixSourcePath, 'Server', 'HytaleServer.jar')).exists()) {
         return false;
     }
@@ -361,20 +361,34 @@ class GameLauncher extends ChangeNotifier {
     notifyListeners();
     
     await _extractFixAssets();
+
+    final serverJarPath = p.join(_fixSourcePath, 'Server', 'HytaleServer.jar');
     
-    if (!await File(p.join(_fixSourcePath, 'Server', 'HytaleServer.jar')).exists()) {
-      _logs.add("[ERROR] HytaleServer.jar not found!");
-      _logs.add("Please download HytaleServer.jar from GitHub Releases");
-      _logs.add("and place it in: ${_fixSourcePath}/Server/");
-      notifyListeners();
-      return;
+    _logs.add("Downloading HytaleServer.jar from GitHub...");
+    notifyListeners();
+    try {
+        final serverDir = Directory(p.join(_fixSourcePath, 'Server'));
+        if (!await serverDir.exists()) await serverDir.create(recursive: true);
+        
+        await _downloadFile(
+            "https://github.com/alexeynormalley-bit/HyTaLauncher/raw/master/assets/fix/Server/HytaleServer.jar", 
+            serverJarPath, 
+            (p) => {}
+        );
+        _logs.add("HytaleServer.jar downloaded.");
+        notifyListeners();
+    } catch (e) {
+        _logs.add("Failed to download HytaleServer.jar: $e");
+        notifyListeners();
+        return;
     }
 
-    if (!await isOnlineFixAvailable()) {
-      _logs.add("online fix source not found at $_fixSourcePath");
+    if (!await File(serverJarPath).exists()) {
+      _logs.add("[ERROR] HytaleServer.jar not found even after download attempt!");
       notifyListeners();
       return;
     }
+    
     try {
       String gameDir;
       if (_versionOverride != null) {
@@ -388,14 +402,21 @@ class GameLauncher extends ChangeNotifier {
           gameDir = p.join(_gameDir, 'sbox_core', 'package', 'game', 'latest');
           _logs.add("applying fix to default latest version...");
       }
+
       if (!await Directory(gameDir).exists()) {
          _logs.add("game directory not found at $gameDir. launch game once to download.");
          notifyListeners();
          return;
       }
-      final serverSource = p.join(_fixSourcePath, 'Server', 'HytaleServer.jar');
+
+      final serverSource = serverJarPath;
       final serverTarget = p.join(gameDir, 'Server', 'HytaleServer.jar');
+      
       if (await File(serverSource).exists()) {
+        if (!await Directory(p.dirname(serverTarget)).exists()) {
+             await Directory(p.dirname(serverTarget)).create(recursive: true);
+        }
+
         _logs.add("patching hytaleserver.jar...");
         notifyListeners();
         final backupTarget = "$serverTarget.bak";
@@ -407,9 +428,7 @@ class GameLauncher extends ChangeNotifier {
         _logs.add("warning: hytaleserver.jar not found in fix source.");
         notifyListeners();
       }
-      final clientSource = p.join(_fixSourcePath, 'Client');
-      final clientTarget = p.join(gameDir, 'Client');
-      final windowsExe = File(p.join(clientTarget, 'HytaleClient.exe'));
+      final windowsExe = File(p.join(gameDir, 'Client', 'HytaleClient.exe'));
       if (await windowsExe.exists()) {
           await windowsExe.delete();
           _logs.add("removed useless HytaleClient.exe");
@@ -434,26 +453,39 @@ class GameLauncher extends ChangeNotifier {
       return "$header.$payload.$signature";
   }
 
-  Future<bool> deleteInstalledVersion() async {
+  Future<bool> deleteInstalledVersion([GameVersion? version]) async {
     await init();
     try {
-      final releaseDir = p.join(_gameDir, 'release');
-      final dir = Directory(releaseDir);
+      String pathToDelete;
+      if (version != null && version.name.startsWith("Installed:")) {
+          // Construct path from branch name
+          final buildName = version.name.split('/').last;
+          pathToDelete = p.join(_gameDir, version.branch, 'package', 'game', buildName);
+      } else {
+          // Default behavior: delete release
+          pathToDelete = p.join(_gameDir, 'release');
+      }
+
+      final dir = Directory(pathToDelete);
       
       if (await dir.exists()) {
-        _logs.add('[Launcher] Deleting installed game version...');
+        _logs.add('[Launcher] Deleting game files at $pathToDelete...');
         notifyListeners();
         
         await dir.delete(recursive: true);
         
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.remove('installed_version');
+        // Also cleanup branch dir if empty? Maybe later.
         
-        _logs.add('[Launcher] Game files deleted. Ready to re-download.');
+        final prefs = await SharedPreferences.getInstance();
+        if (version == null) {
+             await prefs.remove('installed_version');
+        }
+        
+        _logs.add('[Launcher] Game files deleted.');
         notifyListeners();
         return true;
       } else {
-        _logs.add('[Launcher] No installed version found.');
+        _logs.add('[Launcher] Directory not found: $pathToDelete');
         notifyListeners();
         return false;
       }
@@ -462,5 +494,28 @@ class GameLauncher extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Future<void> resetLauncher() async {
+      await init();
+      _logs.add('[Launcher] RESETTING LAUNCHER...');
+      notifyListeners();
+      try {
+          if (await Directory(_userDataDir).exists()) {
+              await Directory(_userDataDir).delete(recursive: true);
+          }
+          if (await Directory(p.join(_launcherDir, 'cache')).exists()) {
+              await Directory(p.join(_launcherDir, 'cache')).delete(recursive: true);
+          }
+          
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.clear();
+          
+          _logs.add('[Launcher] Reset complete. Please restart the launcher.');
+          notifyListeners();
+      } catch (e) {
+          _logs.add('[Launcher] Reset failed: $e');
+          notifyListeners();
+      }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/world_manager.dart';
 
 class WorldsPage extends StatefulWidget {
@@ -109,22 +110,27 @@ class _WorldsPageState extends State<WorldsPage> {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  const Icon(Icons.public, size: 28),
+                  const Icon(Icons.public, size: 28, color: Colors.white),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'World Manager',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.roboto(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   const Spacer(),
                   ElevatedButton.icon(
                     onPressed: _importWorld,
                     icon: const Icon(Icons.file_download),
                     label: const Text('Import World'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32))
+                    ),
                   ),
                   const SizedBox(width: 8),
                   IconButton(
                     onPressed: () => worldManager.refreshWorlds(),
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Icons.refresh, color: Colors.white),
                     tooltip: 'Refresh',
                   ),
                 ],
@@ -136,17 +142,18 @@ class _WorldsPageState extends State<WorldsPage> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFF151515),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white12)
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.folder, size: 20, color: Colors.amber),
+                    const Icon(Icons.folder, size: 20, color: Colors.white54),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         worldManager.universePath,
-                        style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                        style: GoogleFonts.robotoMono(fontSize: 12, color: Colors.white54),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -159,22 +166,22 @@ class _WorldsPageState extends State<WorldsPage> {
             
             Expanded(
               child: worldManager.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: Colors.white))
                   : worldManager.worlds.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.folder_open, size: 64, color: Colors.grey[600]),
+                              const Icon(Icons.folder_open, size: 64, color: Colors.white24),
                               const SizedBox(height: 16),
                               Text(
                                 'No worlds found',
-                                style: TextStyle(fontSize: 18, color: Colors.grey[400]),
+                                style: GoogleFonts.roboto(fontSize: 18, color: Colors.white54),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'Create a world in game or import one',
-                                style: TextStyle(color: Colors.grey[600]),
+                                style: GoogleFonts.roboto(color: Colors.white24),
                               ),
                             ],
                           ),
@@ -184,35 +191,41 @@ class _WorldsPageState extends State<WorldsPage> {
                           itemCount: worldManager.worlds.length,
                           itemBuilder: (context, index) {
                             final world = worldManager.worlds[index];
-                            return Card(
+                            return Container(
                               margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                  color: const Color(0xFF101010),
+                                  border: Border.all(color: Colors.white12),
+                                  borderRadius: BorderRadius.circular(16)
+                              ),
                               child: ListTile(
                                 leading: const CircleAvatar(
-                                  backgroundColor: Colors.teal,
+                                  backgroundColor: Colors.white10,
                                   child: Icon(Icons.terrain, color: Colors.white),
                                 ),
                                 title: Text(
                                   world.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: GoogleFonts.roboto(fontWeight: FontWeight.bold, color: Colors.white),
                                 ),
                                 subtitle: Text(
                                   '${worldManager.formatSize(world.sizeBytes)} • ${world.lastModified?.toString().substring(0, 19) ?? "Unknown date"}',
+                                  style: GoogleFonts.roboto(color: Colors.white54, fontSize: 12),
                                 ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.folder_open),
+                                      icon: const Icon(Icons.folder_open, color: Colors.white70),
                                       tooltip: 'Open Folder',
                                       onPressed: () => worldManager.openWorldFolder(world.name),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.file_upload),
+                                      icon: const Icon(Icons.file_upload, color: Colors.white70),
                                       tooltip: 'Export',
                                       onPressed: () => _exportWorld(world),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      icon: const Icon(Icons.delete_outline, color: Colors.white54),
                                       tooltip: 'Delete',
                                       onPressed: () => _deleteWorld(world),
                                     ),
@@ -230,14 +243,15 @@ class _WorldsPageState extends State<WorldsPage> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red[900],
+                    color: const Color(0xFF200000), // Dark red background for errors
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.withOpacity(0.5))
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error, color: Colors.white),
+                      const Icon(Icons.error_outline, color: Colors.red),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(worldManager.error!, style: const TextStyle(color: Colors.white))),
+                      Expanded(child: Text(worldManager.error!, style: GoogleFonts.roboto(color: Colors.red[100]))),
                     ],
                   ),
                 ),

@@ -30,6 +30,7 @@ class LocalizationService extends ChangeNotifier {
     "settings.cancel": "Cancel",
     "settings.interface_fps": "INTERFACE FRAME RATE (HZ)",
     "settings.max_ram": "MAX RAM (MB)",
+    "tools.title": "RuLang",
   };
 
   Future<void> init() async {

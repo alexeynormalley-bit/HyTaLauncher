@@ -5,73 +5,91 @@ class AppTheme {
   static ThemeData get strict {
 
     const black = Color(0xFF000000);
-    const darkGrey = Color(0xFF101010);
-    const red = Color(0xFFFF0000);
+    const darkGrey = Color(0xFF121212);
     const white = Color(0xFFFFFFFF);
 
-    final baseText = GoogleFonts.robotoFlexTextTheme();
-
-    final dotoFont = GoogleFonts.getFont('Doto'); 
+    final baseText = GoogleFonts.robotoTextTheme();
+    final headerFont = GoogleFonts.roboto(fontWeight: FontWeight.w900); // Strong style
+    final monoFont = GoogleFonts.robotoMono();
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: black,
-      primaryColor: red,
+      primaryColor: white,
       colorScheme: const ColorScheme.dark(
-        primary: red,
-        onPrimary: white,
+        primary: white,
+        onPrimary: black,
         surface: black,
         onSurface: white,
         background: black,
         onBackground: white,
-        error: red,
-        onError: white,
+        error: white, // Minimalist error
+        onError: black,
         outline: white,
-        secondary: red,
+        secondary: white,
       ),
       textTheme: baseText.copyWith(
-        displayLarge: dotoFont.copyWith(color: white, fontWeight: FontWeight.bold),
-        displayMedium: dotoFont.copyWith(color: white, fontWeight: FontWeight.bold),
-        displaySmall: dotoFont.copyWith(color: white, fontWeight: FontWeight.bold),
-        headlineLarge: dotoFont.copyWith(color: white, fontWeight: FontWeight.bold),
-        headlineMedium: dotoFont.copyWith(color: white, fontWeight: FontWeight.bold),
+        displayLarge: headerFont.copyWith(color: white),
+        displayMedium: headerFont.copyWith(color: white),
+        displaySmall: headerFont.copyWith(color: white),
+        headlineLarge: headerFont.copyWith(color: white),
+        headlineMedium: headerFont.copyWith(color: white),
         bodyLarge: baseText.bodyLarge?.copyWith(color: white),
         bodyMedium: baseText.bodyMedium?.copyWith(color: white),
+        labelLarge: GoogleFonts.roboto(fontWeight: FontWeight.bold), // Button text
       ),
       inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: darkGrey,
-        labelStyle: TextStyle(color: Colors.white),
-        hintStyle: TextStyle(color: Colors.white54),
+        labelStyle: TextStyle(color: Colors.white54),
+        hintStyle: TextStyle(color: Colors.white24),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.white24),
-          borderRadius: BorderRadius.zero, 
+          borderRadius: BorderRadius.all(Radius.circular(12)), 
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: red, width: 2),
-          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: white, width: 2),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: red),
-          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: white),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: red,
+          backgroundColor: black,
           foregroundColor: white,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), 
-          textStyle: GoogleFonts.robotoFlex(fontWeight: FontWeight.bold),
+          side: const BorderSide(color: white, width: 1.5),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(32))), 
+          textStyle: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: white,
+          side: const BorderSide(color: Colors.white54),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(32))),
+          textStyle: GoogleFonts.roboto(fontWeight: FontWeight.bold),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
         ),
       ),
       cardTheme: const CardThemeData(
         color: darkGrey,
-        shape: RoundedRectangleBorder(side: BorderSide(color: Colors.white12), borderRadius: BorderRadius.zero),
+        shape: RoundedRectangleBorder(
+            side: BorderSide(color: Colors.white12), 
+            borderRadius: BorderRadius.all(Radius.circular(24))
+        ),
         elevation: 0,
+        margin: EdgeInsets.all(8),
       ),
       visualDensity: VisualDensity.standard,
+      dividerTheme: const DividerThemeData(color: Colors.white12, thickness: 1),
+      iconTheme: const IconThemeData(color: white),
     );
   }
 }

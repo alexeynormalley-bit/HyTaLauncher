@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:hyta_launcher/services/localization_service.dart';
 import 'package:hyta_launcher/services/game_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -42,158 +41,98 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Center(
         child: Container(
             width: 400,
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.white12),
-                color: const Color(0xFF101010),
-
+                border: Border.all(color: colorScheme.outline),
+                color: colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(24)
             ),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                    Text("LAUNCHER SETTINGS", style: GoogleFonts.getFont('Doto', fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text("LAUNCHER SETTINGS", style: GoogleFonts.roboto(fontSize: 24, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                     const SizedBox(height: 32),
-                    Text("MAX RAM (MB)", style: GoogleFonts.getFont('Doto', color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 12)),
+                    Text("MAX RAM (MB)", style: GoogleFonts.roboto(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 12)),
                     const SizedBox(height: 8),
                     TextField(
                         controller: _ramController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                             suffixText: "MB",
-                            suffixStyle: TextStyle(color: Colors.white54)
+                            suffixStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                         ),
                     ),
                     const SizedBox(height: 24),
-                    Text("LAUNCH FLAGS", style: GoogleFonts.getFont('Doto', color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 12)),
+                    Text("LAUNCH FLAGS", style: GoogleFonts.roboto(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 12)),
                     const SizedBox(height: 8),
                     TextField(
                         controller: _flagsController,
-                        style: const TextStyle(color: Colors.white),
                         decoration: const InputDecoration(
                             hintText: "--option value",
-                            hintStyle: TextStyle(color: Colors.white24)
                         ),
                     ),
                     const SizedBox(height: 24),
-                    Text("LANGUAGE / ЯЗЫК", style: GoogleFonts.getFont('Doto', color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 12)),
+                    Text("INTERFACE FRAME RATE (HZ)", style: GoogleFonts.roboto(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 12)),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                        value: LocalizationService().currentLang,
-                        dropdownColor: const Color(0xFF000000),
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(filled: true, fillColor: Color(0xFF101010)),
-                        items: const [
-                            DropdownMenuItem(value: "en", child: Text("English")),
-                            DropdownMenuItem(value: "ru", child: Text("Русский")),
-                        ],
-                        onChanged: (v) async {
-                             if (v != null) {
-                                 await LocalizationService().loadLanguage(v);
-                                 setState(() {});
-                             }
-                        },
-                    ),
-
-                    const SizedBox(height: 24),
-                    Text("INTERFACE FRAME RATE (HZ)", style: GoogleFonts.getFont('Doto', color: Colors.white54, fontWeight: FontWeight.bold, fontSize: 12)),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<int>(
-                        value: _fps,
-                        dropdownColor: const Color(0xFF000000),
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(filled: true, fillColor: Color(0xFF101010), suffixText: "Hz"),
-                        items: const [60, 122, 144, 165, 200].map((e) => DropdownMenuItem(value: e, child: Text(e.toString()))).toList(),
-                        onChanged: (v) => setState(() => _fps = v ?? 60),
+                    DropdownMenu<int>(
+                        initialSelection: _fps,
+                        expandedInsets: EdgeInsets.zero,
+                        dropdownMenuEntries: [60, 120, 144, 165, 200].map((e) => DropdownMenuEntry(value: e, label: "$e Hz")).toList(),
+                        onSelected: (v) => setState(() => _fps = v ?? 60),
                     ),
                     
-                    const SizedBox(height: 24),
-
-                    Text("PATCHER (WIP)", style: GoogleFonts.getFont('Doto', fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white54)),
+                    const SizedBox(height: 32),
+                    Text("DANGER ZONE", style: GoogleFonts.roboto(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.error)),
                     const SizedBox(height: 8),
                     Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E1E1E),
-                        borderRadius: BorderRadius.circular(0),
-                        border: Border.all(color: Colors.white12),
+                        color: colorScheme.errorContainer.withOpacity(0.3),
+                        border: Border.all(color: colorScheme.error.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(16)
                       ),
                       child: ListTile(
-                        title: Text("APPLY PATCHER (WIP)", style: GoogleFonts.getFont('Doto', color: Colors.white, fontSize: 14)),
-                        subtitle: Text("Patches server for LAN/Offline", style: GoogleFonts.getFont('Doto', color: Colors.white38, fontSize: 10)),
-                        trailing: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent.withOpacity(0.2),
-                            foregroundColor: Colors.blueAccent,
-                             shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                          ),
-                          onPressed: () async {
-                             final launcher = context.read<GameLauncher>();
-                             if (await launcher.isOnlineFixAvailable()) {
-                                await launcher.applyOnlineFix();
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Patcher Applied. Check logs.")),
-                                  );
-                                }
-                             } else {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Fix Source not found!")),
-                                  );
-                                }
-                             }
-                          },
-                          child: const Text("INSTALL"),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-                    Text("DANGER ZONE", style: GoogleFonts.getFont('Doto', fontSize: 12, fontWeight: FontWeight.bold, color: Colors.red)),
-                    const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
-                        border: Border.all(color: Colors.red.withOpacity(0.5)),
-                      ),
-                      child: ListTile(
-                        title: Text("DELETE GAME VERSION", style: GoogleFonts.getFont('Doto', color: Colors.red, fontSize: 14)),
-                        subtitle: Text("Remove all game files to re-download", style: GoogleFonts.getFont('Doto', color: Colors.white38, fontSize: 10)),
-                        trailing: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red.withOpacity(0.3),
-                            foregroundColor: Colors.red,
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        leading: Icon(Icons.delete_forever, color: colorScheme.error),
+                        title: Text("RESET LAUNCHER", style: GoogleFonts.roboto(color: colorScheme.onSurface, fontSize: 14, fontWeight: FontWeight.bold)),
+                        subtitle: Text("Wipe all data (Config, UserData, Cache)", style: GoogleFonts.roboto(color: colorScheme.onSurfaceVariant, fontSize: 10)),
+                        trailing: FilledButton.tonal(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: colorScheme.errorContainer,
+                            foregroundColor: colorScheme.onErrorContainer,
                           ),
                           onPressed: () async {
                             final confirm = await showDialog<bool>(
                               context: context,
                               builder: (ctx) => AlertDialog(
-                                backgroundColor: Colors.black,
-                                title: Text("DELETE GAME?", style: GoogleFonts.getFont('Doto', color: Colors.red)),
-                                content: Text("This will delete all game files.\nYou will need to re-download the game.", style: GoogleFonts.inter(color: Colors.white70)),
+                                title: Text("RESET LAUNCHER?", style: GoogleFonts.roboto(fontWeight: FontWeight.bold)),
+                                content: Text("This will delete ALL launcher data, including settings, saved accounts, and caches.\nThis cannot be undone.", style: GoogleFonts.roboto()),
                                 actions: [
                                   TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("CANCEL")),
-                                  TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("DELETE", style: TextStyle(color: Colors.red))),
+                                  FilledButton(
+                                    style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+                                    onPressed: () => Navigator.pop(ctx, true), 
+                                    child: const Text("RESET EVERYTHING")
+                                  ),
                                 ],
                               ),
                             );
                             if (confirm == true && context.mounted) {
                               final launcher = context.read<GameLauncher>();
-                              final success = await launcher.deleteInstalledVersion();
+                              await launcher.resetLauncher();
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(success ? "Game deleted. Ready to re-download." : "Delete failed or no game found")),
+                                  const SnackBar(content: Text("Launcher Reset. Please restart app.")),
                                 );
                               }
                             }
                           },
-                          child: const Text("DELETE"),
+                          child: const Text("RESET"),
                         ),
                       ),
                     ),
@@ -201,15 +140,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(height: 24),
                     SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFF0000),
-                                foregroundColor: Colors.white,
-                                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                                padding: const EdgeInsets.symmetric(vertical: 20)
-                            ),
+                        child: FilledButton(
                             onPressed: _saveSettings,
-                            child: Text("SAVE SETTINGS", style: GoogleFonts.getFont('Doto', fontWeight: FontWeight.bold))
+                            child: Text("SAVE SETTINGS", style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 16))
                         )
                     )
                 ],

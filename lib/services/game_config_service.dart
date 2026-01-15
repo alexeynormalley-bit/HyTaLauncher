@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 class GameConfigService {
-  final String _userDataDir;
+  final String _gameDir;
   
-  GameConfigService(this._userDataDir);
+  GameConfigService(this._gameDir);
+
+  String get configPath => p.join(_gameDir, "config.json");
 
   Future<File> get _configFile async {
-    return File(p.join(_userDataDir, "Settings.json"));
+    return File(configPath);
   }
 
   Future<String> readConfig() async {
