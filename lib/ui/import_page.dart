@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
 
@@ -61,9 +61,9 @@ class _ImportPageState extends State<ImportPage> {
         children: [
           const Icon(Icons.drive_folder_upload, size: 64, color: Colors.white),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             "MANUAL MOD IMPORT",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 2),
+            style: GoogleFonts.getFont('Doto', fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.white),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -74,8 +74,11 @@ class _ImportPageState extends State<ImportPage> {
           ElevatedButton.icon(
             onPressed: _isImporting ? null : _importMods,
             icon: const Icon(Icons.add),
-            label: const Text("SELECT FILES"),
+            label: Text("SELECT FILES", style: GoogleFonts.getFont('Doto', fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
+               backgroundColor: const Color(0xFFFF0000),
+               foregroundColor: Colors.white,
+               shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             ),
           ),
@@ -83,7 +86,10 @@ class _ImportPageState extends State<ImportPage> {
           if (_status.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(12),
-              color: Colors.white10,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                border: Border.all(color: Colors.white24)
+              ),
               child: Text(_status, style: const TextStyle(color: Colors.white)),
             )
         ],

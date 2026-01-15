@@ -5,7 +5,11 @@ import 'package:hyta_launcher/ui/theme.dart';
 import 'package:hyta_launcher/ui/scaffold.dart';
 import 'package:hyta_launcher/services/game_launcher.dart';
 
-void main() {
+import 'package:hyta_launcher/services/localization_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalizationService().init();
   runApp(const HyTaLauncherApp());
 }
 
@@ -16,13 +20,19 @@ class HyTaLauncherApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<GameLauncher>(create: (_) => GameLauncher()),
+        ChangeNotifierProvider(create: (_) => GameLauncher()),
       ],
-      child: MaterialApp(
-        title: 'HyTa Launcher',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.monochrome,
-        home: const MainScaffold(),
+      child: AnimatedBuilder(
+        animation: LocalizationService(),
+        builder: (context, _) {
+          return MaterialApp(
+            title: 'HyTaLauncher',
+            debugShowCheckedModeBanner: false,
+
+            theme: AppTheme.strict,
+            home: const MainScaffold(),
+          );
+        }
       ),
     );
   }

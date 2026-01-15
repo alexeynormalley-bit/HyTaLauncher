@@ -1,9 +1,11 @@
 
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hyta_launcher/services/config.dart';
 import 'package:hyta_launcher/utils/butler.dart';
@@ -27,7 +29,7 @@ class GameVersion {
   });
 }
 
-class GameLauncher {
+class GameLauncher extends ChangeNotifier {
   final http.Client _client = http.Client();
   final http.Client _quickClient = http.Client(); 
 
@@ -36,6 +38,9 @@ class GameLauncher {
   late String _userDataDir;
 
   bool _isInitialized = false;
+  Process? _process;
+
+  bool get isGameRunning => _process != null;
 
   Future<void> init() async {
     if (_isInitialized) return;
@@ -53,6 +58,14 @@ class GameLauncher {
     await Directory(p.join(_launcherDir, 'cache')).create(recursive: true);
 
     _isInitialized = true;
+  }
+
+  Future<void> killGame() async {
+      if (_process != null) {
+          _process!.kill(ProcessSignal.sigkill);
+          _process = null;
+          notifyListeners();
+      }
   }
 
   Future<List<GameVersion>> getAvailableVersions(
@@ -119,21 +132,50 @@ class GameLauncher {
     }
 
     final uuid = _getOrCreateUuid(playerName);
+    
+    // Load custom flags
+    final prefs = await SharedPreferences.getInstance();
+    final customFlags = prefs.getString('custom_flags') ?? "";
+    final flagArgs = customFlags.isNotEmpty ? customFlags.split(' ') : [];
 
-    final args = [
+    final List<String> args = [
       '--app-dir', gameDir,
       '--user-dir', _userDataDir,
       '--java-exec', javaExe,
       '--auth-mode', 'offline',
       '--uuid', uuid,
-      '--name', playerName
+      '--name', playerName,
+      ...flagArgs
     ];
     
-    Process.start(clientPath, args, 
+    _logs.clear();
+    _logs.add("Launching with args: $args");
+    notifyListeners();
+
+    _process = await Process.start(clientPath, args, 
         workingDirectory: p.dirname(clientPath),
-        mode: ProcessStartMode.detached
     );
+    notifyListeners();
+
+    _process!.stdout.transform(utf8.decoder).listen((data) {
+        _logs.add(data.trim());
+        notifyListeners();
+    });
+
+    _process!.stderr.transform(utf8.decoder).listen((data) {
+        _logs.add("[ERR] ${data.trim()}");
+        notifyListeners();
+    });
+    
+    _process!.exitCode.then((code) {
+        _logs.add("Process exited with code $code");
+        _process = null;
+        notifyListeners();
+    });
   }
+
+  final List<String> _logs = [];
+  List<String> get logs => List.unmodifiable(_logs);
 
   Future<void> _downloadGame(
       GameVersion version, Function(String) onStatus, Function(double) onProgress) async {

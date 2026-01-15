@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hyta_launcher/services/mod_service.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -68,13 +68,13 @@ class _ModsPageState extends State<ModsPage> {
                   child: Column(
                       children: [
                           Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(16.0),
                               child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                      const Text("INSTALLED MODS", style: TextStyle(fontWeight: FontWeight.bold)),
+                                      Text("INSTALLED MODS", style: GoogleFonts.getFont('Doto', fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
                                       IconButton(
-                                          icon: const Icon(Icons.refresh, size: 16),
+                                          icon: const Icon(Icons.refresh, size: 20, color: Colors.white),
                                           onPressed: _loadInstalled,
                                           tooltip: "Refresh List",
                                       )
@@ -83,8 +83,9 @@ class _ModsPageState extends State<ModsPage> {
                           ),
                           Expanded(
                               child: _isLoading 
-                                  ? const Center(child: CircularProgressIndicator()) 
-                                  : ListView.builder(
+                                  ? const Center(child: CircularProgressIndicator(color: Colors.white)) 
+                                  : ListView.separated(
+                                  separatorBuilder: (c, i) => const Divider(color: Colors.white10, height: 1),
                                   itemCount: _installedMods.length,
                                   itemBuilder: (context, index) {
                                       final mod = _installedMods[index];
@@ -92,23 +93,22 @@ class _ModsPageState extends State<ModsPage> {
                                           title: Text(mod.fileName, 
                                               style: TextStyle(
                                                   decoration: mod.isEnabled ? null : TextDecoration.lineThrough,
-                                                  color: mod.isEnabled ? Colors.white : Colors.white24
+                                                  color: mod.isEnabled ? Colors.white : Colors.white24,
+                                                  fontFamily: GoogleFonts.robotoFlex().fontFamily
                                               ),
                                               overflow: TextOverflow.ellipsis
                                           ),
-                                          trailing: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                  IconButton(
-                                                      icon: Icon(mod.isEnabled ? Icons.check_box : Icons.check_box_outline_blank),
-                                                      onPressed: () => _toggle(mod),
-                                                  ),
-                                                  IconButton(
-                                                      icon: const Icon(Icons.delete, size: 16),
-                                                      onPressed: () => _delete(mod),
-                                                  )
-                                              ],
+                                          leading: Checkbox(
+                                              value: mod.isEnabled,
+                                              activeColor: const Color(0xFFFF0000),
+                                              side: const BorderSide(color: Colors.white54),
+                                              onChanged: (v) => _toggle(mod),
                                           ),
+                                          trailing: IconButton(
+                                              icon: const Icon(Icons.delete_outline, size: 20, color: Colors.white54),
+                                              onPressed: () => _delete(mod),
+                                          ),
+                                          onTap: () => _toggle(mod),
                                       );
                                   }
                               )

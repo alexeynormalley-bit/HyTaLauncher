@@ -16,7 +16,7 @@ class Butler {
     final butlerExe = p.join(butlerDir, 'butler');
 
     if (await File(butlerExe).exists()) {
-      // Ensure executable permission
+
       await Process.run('chmod', ['+x', butlerExe]);
       return butlerExe;
     }
@@ -24,7 +24,7 @@ class Butler {
     await Directory(butlerDir).create(recursive: true);
 
     print('Downloading Butler...');
-    // Linux 64-bit URL
+
     const butlerUrl =
         "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default";
     final zipPath = p.join(launcherDir, 'cache', 'butler.zip');
@@ -56,7 +56,7 @@ class Butler {
 
     onStatus("Applying patch...");
 
-    // butler apply --staging-dir <dir> <patch> <target>
+
     final args = [
       'apply',
       '--staging-dir',
@@ -67,7 +67,7 @@ class Butler {
 
     print('Running: $butlerExe ${args.join(" ")}');
 
-    // Ensure executable bit is set right before running
+
     await Process.run('chmod', ['+x', butlerExe]);
 
     final process = await Process.start(butlerExe, args,

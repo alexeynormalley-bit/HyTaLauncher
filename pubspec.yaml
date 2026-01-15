@@ -42,7 +42,7 @@ dependencies:
   crypto: ^3.0.7
   uuid: ^4.5.2
   ini: ^2.1.0
-  google_fonts: ^7.0.2
+  google_fonts: ^7.0.0
   shared_preferences: ^2.5.4
   file_selector: ^1.1.0
   file_selector_linux: ^0.9.4
@@ -70,7 +70,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - assets/lang/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

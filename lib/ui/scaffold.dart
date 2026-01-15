@@ -1,11 +1,13 @@
-
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:hyta_launcher/ui/home_page.dart';
-import 'package:hyta_launcher/ui/mods_page.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hyta_launcher/services/localization_service.dart';
 import 'package:hyta_launcher/ui/home_page.dart';
 import 'package:hyta_launcher/ui/mods_page.dart';
 import 'package:hyta_launcher/ui/import_page.dart';
+import 'package:hyta_launcher/ui/game_settings_page.dart';
 import 'package:hyta_launcher/ui/settings_page.dart';
+import 'package:hyta_launcher/ui/logs_page.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -20,70 +22,102 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Column(
         children: [
-          // Window Title Bar (Custom)
+
           Container(
-            height: 40,
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.white24)),
-            ),
+             height: 50,
+             decoration: const BoxDecoration(
+               border: Border(bottom: BorderSide(color: Colors.white24))
+             ),
+             padding: const EdgeInsets.symmetric(horizontal: 16),
+             child: Row(
+               children: [
+                 Text(LocalizationService().get("app.title") ?? "HYTALAUNCHER", 
+                   style: GoogleFonts.getFont('Doto', color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)
+                 ),
+                 const Spacer(),
+                 IconButton(
+                   icon: const Icon(Icons.close, color: Colors.white), 
+                   onPressed: () => exit(0),
+                   tooltip: "Close",
+                 )
+               ],
+             ),
+          ),
+          
+          Expanded(
             child: Row(
               children: [
-                const SizedBox(width: 16),
-                const Text("HYTA LAUNCHER", 
-                   style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
-                const SizedBox(width: 32),
-                TextButton(
-                    onPressed: () => setState(() => _currentIndex = 0),
-                    child: Text("PLAY", 
-                        style: TextStyle(
-                            color: _currentIndex == 0 ? Colors.white : Colors.white54, 
-                            fontWeight: FontWeight.bold))
+
+                Container(
+                   width: 250,
+                   decoration: const BoxDecoration(
+                       color: Colors.black,
+                       border: Border(right: BorderSide(color: Colors.white24))
+                   ),
+                   child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.stretch,
+                       children: [
+                           const SizedBox(height: 20),
+                           _navButton("PLAY", 0),
+                           _navButton("MODS", 1),
+                           _navButton("IMPORT", 2),
+                           const Spacer(),
+                           _navButton("LOGS", 3),
+                           _navButton("SETTINGS", 4),
+                           const SizedBox(height: 20),
+                       ]
+                   ),
                 ),
-                TextButton(
-                    onPressed: () => setState(() => _currentIndex = 1),
-                    child: Text("MODS", 
-                         style: TextStyle(
-                            color: _currentIndex == 1 ? Colors.white : Colors.white54, 
-                            fontWeight: FontWeight.bold))
-                ),
-                TextButton(
-                    onPressed: () => setState(() => _currentIndex = 2),
-                    child: Text("IMPORT", 
-                         style: TextStyle(
-                            color: _currentIndex == 2 ? Colors.white : Colors.white54, 
-                            fontWeight: FontWeight.bold))
-                ),
-                TextButton(
-                    onPressed: () => setState(() => _currentIndex = 3),
-                    child: Text("SETTINGS", 
-                         style: TextStyle(
-                            color: _currentIndex == 3 ? Colors.white : Colors.white54, 
-                            fontWeight: FontWeight.bold))
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 16),
-                  onPressed: () => Navigator.of(context).maybePop(), 
-                  splashRadius: 20,
+
+                Expanded(
+                    child: ColoredBox(
+                      color: Colors.black,
+                      child: IndexedStack(
+                          index: _currentIndex,
+                          children: [
+                               const HomePage(),
+                               const ModsPage(), 
+                               const ImportPage(),
+                               const LogsPage(),
+                               const SettingsPage(),
+                          ],
+                      ),
+                    )
                 )
               ],
             ),
           ),
-          Expanded(
-              child: IndexedStack(
-                  index: _currentIndex,
-                  children: [
-                       HomePage(),
-                       ModsPage(), // Not const, allows state updates if we change parent
-                       ImportPage(),
-                       SettingsPage(), // Added SettingsPage
-                  ],
-              )
-          ),
         ],
       ),
     );
+  }
+
+  Widget _navButton(String label, int index) {
+      final isSelected = _currentIndex == index;
+      final color = isSelected ? const Color(0xFFFF0000) : Colors.white;
+      
+      return InkWell(
+        onTap: () => setState(() => _currentIndex = index),
+        hoverColor: const Color(0xFF101010),
+        child: Container(
+           height: 50,
+           padding: const EdgeInsets.symmetric(horizontal: 24),
+           decoration: BoxDecoration(
+             border: isSelected ? const Border(left: BorderSide(color: Color(0xFFFF0000), width: 4)) : null
+           ),
+           alignment: Alignment.centerLeft,
+           child: Text(
+             label, 
+             style: GoogleFonts.getFont('Doto',
+                 color: color, 
+                 fontWeight: FontWeight.bold,
+                 fontSize: 16
+             )
+           ),
+        ),
+      );
   }
 }

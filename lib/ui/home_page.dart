@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hyta_launcher/services/game_launcher.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Need to add this dep
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -95,18 +94,23 @@ class _HomePageState extends State<HomePage> {
                 width: 400,
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
+                  color: Colors.black,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("LOGIN", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text("LOGIN", style: GoogleFonts.getFont('Doto', fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
                     const SizedBox(height: 32),
                     
                     TextField(
                       controller: _nicknameController,
-                      decoration: const InputDecoration(labelText: "NICKNAME"),
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                          labelText: "NICKNAME",
+                          floatingLabelStyle: TextStyle(color: Colors.red),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     
@@ -116,11 +120,14 @@ class _HomePageState extends State<HomePage> {
                           child: DropdownButtonFormField<String>(
                             value: _selectedBranch,
                             isExpanded: true,
-                            decoration: const InputDecoration(labelText: "BRANCH"),
-                            dropdownColor: Colors.black,
+                            decoration: const InputDecoration(labelText: "BRANCH", floatingLabelStyle: TextStyle(color: Colors.red)),
+                            dropdownColor: const Color(0xFF101010),
                             items: ["release", "beta", "alpha"].map((b) => DropdownMenuItem(
                                 value: b, 
-                                child: Text(b.toUpperCase(), overflow: TextOverflow.ellipsis)
+                                child: Text(b.toUpperCase(), 
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.getFont('Doto', color: Colors.white)
+                                )
                             )).toList(),
                             onChanged: _isLoading ? null : (v) {
                                 if (v != null) {
@@ -135,11 +142,14 @@ class _HomePageState extends State<HomePage> {
                           child: DropdownButtonFormField<GameVersion>(
                             value: _selectedVersion,
                             isExpanded: true,
-                            decoration: const InputDecoration(labelText: "VERSION"),
-                             dropdownColor: Colors.black,
+                            decoration: const InputDecoration(labelText: "VERSION", floatingLabelStyle: TextStyle(color: Colors.red)),
+                             dropdownColor: const Color(0xFF101010),
                             items: _versions.map((v) => DropdownMenuItem(
                                 value: v, 
-                                child: Text(v.name, overflow: TextOverflow.ellipsis)
+                                child: Text(v.name, 
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.getFont('Doto', color: Colors.white)
+                                )
                             )).toList(),
                             onChanged: _isLoading ? null : (v) => setState(() => _selectedVersion = v),
                           ),
@@ -149,15 +159,29 @@ class _HomePageState extends State<HomePage> {
                     
                     const SizedBox(height: 32),
                     
-                    SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                            onPressed: _isLoading ? null : _launch,
-                            child: _isLoading 
-                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black)) 
-                                : const Text("PLAY", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
-                        ),
+                    Consumer<GameLauncher>(
+                      builder: (context, launcher, _) {
+                        return SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: launcher.isGameRunning ? Colors.red.shade900 : const Color(0xFFFF0000),
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.zero,
+                                ),
+                                onPressed: _isLoading 
+                                    ? null 
+                                    : (launcher.isGameRunning 
+                                        ? () => launcher.killGame() 
+                                        : _launch),
+                                child: _isLoading 
+                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
+                                    : Text(launcher.isGameRunning ? "FORCE CLOSE" : "PLAY", 
+                                        style: GoogleFonts.getFont('Doto', fontSize: 18, fontWeight: FontWeight.bold))
+                            ),
+                        );
+                      }
                     ),
                   ],
                 ),
@@ -165,14 +189,14 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           
-          // Bottom Status Bar
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
                 if (_isLoading)
-                  LinearProgressIndicator(value: _progress > 0 ? _progress / 100 : null, color: Colors.white, backgroundColor: Colors.white24),
+                  LinearProgressIndicator(value: _progress > 0 ? _progress / 100 : null, color: const Color(0xFFFF0000), backgroundColor: Colors.white24),
                 const SizedBox(height: 8),
-                Text(_status.toUpperCase(), style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                Text(_status.toUpperCase(), style: GoogleFonts.getFont('Doto', color: Colors.white54, fontSize: 12)),
             ],
           )
         ],

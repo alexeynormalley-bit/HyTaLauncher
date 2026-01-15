@@ -15,7 +15,9 @@ A modern, monochrome Hytale launcher for Linux, built with Flutter.
   - Manage installed mods easily.
   - **Manual Import**: Drag and drop or select `.jar`/`.zip` files to install them instantly.
 - **Smart Updates**: Only downloads game files when a new version is detected.
-- **Settings**: Configure RAM allocation and other launch parameters.
+- **Advanced Logs**: View and copy game logs directly from the "LOGS" tab (with error highlighting).
+- **Settings**: Configure RAM allocation, launch flags, and other parameters.
+- **Force Close**: Ability to forcibly terminate the game process if needed.
 - **Secure**: No hardcoded API keys or sensitive data.
 
 ## Installation
@@ -49,6 +51,7 @@ flutter run -d linux
 3. **Mods**: 
    - Manage existing mods in the "MODS" tab.
    - Import new mods via the "IMPORT" tab.
+4. **Logs**: Check the "LOGS" tab for game output and errors.
 
 ## License
 
