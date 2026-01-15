@@ -1,3 +1,4 @@
+import 'package:hyta_launcher/services/server_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -74,8 +75,9 @@ class _AiPageState extends State<AiPage> {
       
       _triggerActionFeedback("ANALYZING LOGS & CONTEXT...", Icons.analytics_outlined);
 
-      final logs = context.read<GameLauncher>().logs;
-      final response = await _aiService.sendMessage(text, logs);
+      final clientLogs = context.read<GameLauncher>().logs;
+      final serverLogs = context.read<ServerManager>().logs;
+      final response = await _aiService.sendMessage(text, clientLogs, serverLogs);
       
       if (response.contains("[SET_")) {
           _handleInjection(response);
@@ -146,7 +148,7 @@ class _AiPageState extends State<AiPage> {
             children: [
                 Row(
                     children: [
-                        Text("AI ASSISTANT", style: GoogleFonts.getFont('Doto', fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                        Text("AI ASSISTANT", style: GoogleFonts.roboto(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
                         const Spacer(),
                         IconButton(
                             onPressed: () => setState(() => _showSettings = !_showSettings),
@@ -159,30 +161,33 @@ class _AiPageState extends State<AiPage> {
                 const SizedBox(height: 16),
                 Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(border: Border.all(color: Colors.white24), color: const Color(0xFF101010)),
+                    decoration: BoxDecoration(border: Border.all(color: Colors.white24), color: const Color(0xFF101010), borderRadius: BorderRadius.circular(16)),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                            Text("GEMINI API KEY", style: GoogleFonts.getFont('Doto', color: Colors.white54, fontSize: 12)),
+                            Text("GEMINI API KEY", style: GoogleFonts.roboto(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 8),
                             TextField(
                                 controller: _apiKeyController,
                                 obscureText: true,
                                 style: const TextStyle(color: Colors.white),
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                     hintText: "Enter key...",
-                                    hintStyle: TextStyle(color: Colors.white24)
+                                    hintStyle: const TextStyle(color: Colors.white24),
+                                    filled: true,
+                                    fillColor: const Color(0xFF050505),
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white12))
                                 ),
                                 onChanged: (v) => _aiService.setApiKey(v),
                             ),
                             const SizedBox(height: 16),
-                            Text("MODEL", style: GoogleFonts.getFont('Doto', color: Colors.white54, fontSize: 12)),
+                            Text("MODEL", style: GoogleFonts.roboto(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 8),
                             DropdownButtonFormField<String>(
                                 value: _aiService.currentModel,
                                 dropdownColor: Colors.black,
                                 style: const TextStyle(color: Colors.white),
-                                decoration: const InputDecoration(filled: true, fillColor: Color(0xFF101010)),
+                                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF050505), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.white12))),
                                 items: AiService.availableModels.map((m) => 
                                     DropdownMenuItem(value: m, child: Text(m))
                                 ).toList(),
@@ -203,8 +208,9 @@ class _AiPageState extends State<AiPage> {
             Expanded(
                 child: Container(
                     decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white24),
-                        color: Colors.black 
+                        border: Border.all(color: Colors.white12),
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(16)
                     ),
                     child: ListView.builder(
                         controller: _scrollController,
@@ -221,12 +227,13 @@ class _AiPageState extends State<AiPage> {
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
                                         color: isUser ? const Color(0xFF202020) : const Color(0xFF101010),
-                                        border: Border.all(color: isUser ? Colors.white24 : Colors.red.withOpacity(0.3)),
+                                        border: Border.all(color: isUser ? Colors.white24 : Colors.white12),
+                                        borderRadius: BorderRadius.circular(12)
                                     ),
                                     child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                            Text(isUser ? "YOU" : "AI", style: GoogleFonts.getFont('Doto', fontSize: 10, color: Colors.white54)),
+                                            Text(isUser ? "YOU" : "AI", style: GoogleFonts.roboto(fontSize: 10, color: Colors.white54, fontWeight: FontWeight.bold)),
                                             const SizedBox(height: 4),
                                             isUser 
                                                 ? Text(msg['text']!, style: GoogleFonts.roboto(color: Colors.white))
@@ -235,7 +242,7 @@ class _AiPageState extends State<AiPage> {
                                                     styleSheet: MarkdownStyleSheet(
                                                         p: GoogleFonts.roboto(color: Colors.white),
                                                         code: GoogleFonts.robotoMono(backgroundColor: Colors.white10),
-                                                        codeblockDecoration: BoxDecoration(color: Colors.black, border: Border.all(color: Colors.white24)),
+                                                        codeblockDecoration: BoxDecoration(color: Colors.black, border: Border.all(color: Colors.white24), borderRadius: BorderRadius.circular(8)),
                                                     ),
                                                   )
                                         ],
@@ -254,9 +261,12 @@ class _AiPageState extends State<AiPage> {
                         child: TextField(
                             controller: _inputController,
                             style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                                 hintText: "Ask AI for help...",
-                                hintStyle: TextStyle(color: Colors.white24),
+                                hintStyle: const TextStyle(color: Colors.white24),
+                                filled: true,
+                                fillColor: const Color(0xFF101010),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(32), borderSide: const BorderSide(color: Colors.white24))
                             ),
                             onSubmitted: (_) => _sendMessage(),
                         )
@@ -268,12 +278,13 @@ class _AiPageState extends State<AiPage> {
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: Colors.black,
-                                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(12)
                             ),
                             onPressed: _isLoading ? null : _sendMessage,
                             child: _isLoading 
-                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
-                                : const Icon(Icons.send)
+                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) 
+                                : const Icon(Icons.arrow_upward)
                         )
                     )
                 ],
@@ -292,6 +303,7 @@ class _AiPageState extends State<AiPage> {
                   decoration: BoxDecoration(
                       color: const Color(0xFF151515),
                       border: Border.all(color: Colors.white24),
+                      borderRadius: BorderRadius.circular(12),
                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 4))]
                   ),
                   child: Row(
@@ -303,7 +315,7 @@ class _AiPageState extends State<AiPage> {
                           Expanded(
                               child: Text(
                                   _actionText,
-                                  style: GoogleFonts.getFont('Doto', color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                  style: GoogleFonts.roboto(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                                   overflow: TextOverflow.ellipsis,
                               )
                           ),

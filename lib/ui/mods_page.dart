@@ -72,7 +72,7 @@ class _ModsPageState extends State<ModsPage> {
                               child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                      Text("INSTALLED MODS", style: GoogleFonts.getFont('Doto', fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
+                                      Text("INSTALLED MODS", style: GoogleFonts.roboto(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
                                       IconButton(
                                           icon: const Icon(Icons.refresh, size: 20, color: Colors.white),
                                           onPressed: _loadInstalled,
@@ -94,13 +94,14 @@ class _ModsPageState extends State<ModsPage> {
                                               style: TextStyle(
                                                   decoration: mod.isEnabled ? null : TextDecoration.lineThrough,
                                                   color: mod.isEnabled ? Colors.white : Colors.white24,
-                                                  fontFamily: GoogleFonts.robotoFlex().fontFamily
+                                                  fontFamily: GoogleFonts.roboto().fontFamily
                                               ),
                                               overflow: TextOverflow.ellipsis
                                           ),
                                           leading: Checkbox(
                                               value: mod.isEnabled,
-                                              activeColor: const Color(0xFFFF0000),
+                                              activeColor: Colors.white,
+                                              checkColor: Colors.black,
                                               side: const BorderSide(color: Colors.white54),
                                               onChanged: (v) => _toggle(mod),
                                           ),

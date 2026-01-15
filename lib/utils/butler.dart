@@ -25,11 +25,16 @@ class Butler {
 
     print('Downloading Butler...');
 
-    const butlerUrl = "https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default";
+    const butlerUrl = "https://github.com/itchio/butler/releases/latest/download/butler-linux-amd64.zip";
     final zipPath = p.join(launcherDir, 'cache', 'butler.zip');
     await Directory(p.join(launcherDir, 'cache')).create(recursive: true);
 
-    await _downloadFile(butlerUrl, zipPath);
+    try {
+      await _downloadFile(butlerUrl, zipPath);
+    } catch (e) {
+      const fallbackUrl = "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default";
+      await _downloadFile(fallbackUrl, zipPath);
+    }
 
     print('Extracting Butler...');
     final bytes = await File(zipPath).readAsBytes();

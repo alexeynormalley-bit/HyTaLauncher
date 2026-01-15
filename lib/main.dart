@@ -1,12 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:hyta_launcher/ui/theme.dart';
 import 'package:hyta_launcher/ui/scaffold.dart';
 import 'package:hyta_launcher/services/game_launcher.dart';
 import 'package:hyta_launcher/services/server_manager.dart';
 import 'package:hyta_launcher/services/world_manager.dart';
-
 import 'package:hyta_launcher/services/localization_service.dart';
 
 void main() async {
@@ -20,9 +17,18 @@ class HyTaLauncherApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: const Color(0xFFD32F2F),
+      brightness: Brightness.dark,
+    );
+    
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => GameLauncher()),
+        ChangeNotifierProvider(create: (_) {
+          final launcher = GameLauncher();
+          launcher.init();
+          return launcher;
+        }),
         ChangeNotifierProxyProvider<GameLauncher, ServerManager>(
           create: (_) => ServerManager(gameDir: '', javaExe: ''),
           update: (_, gameLauncher, previous) {
@@ -51,8 +57,44 @@ class HyTaLauncherApp extends StatelessWidget {
           return MaterialApp(
             title: 'HyTaLauncher',
             debugShowCheckedModeBanner: false,
-
-            theme: AppTheme.strict,
+            themeMode: ThemeMode.dark,
+            darkTheme: ThemeData(
+              useMaterial3: true,
+              colorScheme: colorScheme,
+              scaffoldBackgroundColor: colorScheme.surface,
+              cardTheme: CardThemeData(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                filled: true,
+                fillColor: colorScheme.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: colorScheme.primary, width: 2),
+                ),
+              ),
+              navigationRailTheme: NavigationRailThemeData(
+                backgroundColor: colorScheme.surfaceContainer,
+                selectedIconTheme: IconThemeData(color: colorScheme.onPrimaryContainer),
+                unselectedIconTheme: IconThemeData(color: colorScheme.onSurfaceVariant),
+                indicatorColor: colorScheme.primaryContainer,
+              ),
+            ),
             home: const MainScaffold(),
           );
         }

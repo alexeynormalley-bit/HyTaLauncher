@@ -63,7 +63,7 @@ class _ImportPageState extends State<ImportPage> {
           const SizedBox(height: 24),
           Text(
             "MANUAL MOD IMPORT",
-            style: GoogleFonts.getFont('Doto', fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.white),
+            style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.white),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -74,11 +74,11 @@ class _ImportPageState extends State<ImportPage> {
           ElevatedButton.icon(
             onPressed: _isImporting ? null : _importMods,
             icon: const Icon(Icons.add),
-            label: Text("SELECT FILES", style: GoogleFonts.getFont('Doto', fontWeight: FontWeight.bold)),
+            label: Text("SELECT FILES", style: GoogleFonts.roboto(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
-               backgroundColor: const Color(0xFFFF0000),
-               foregroundColor: Colors.white,
-               shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+               backgroundColor: Colors.white,
+               foregroundColor: Colors.black,
+               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             ),
           ),
@@ -88,7 +88,8 @@ class _ImportPageState extends State<ImportPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white10,
-                border: Border.all(color: Colors.white24)
+                border: Border.all(color: Colors.white24),
+                borderRadius: BorderRadius.circular(12)
               ),
               child: Text(_status, style: const TextStyle(color: Colors.white)),
             )

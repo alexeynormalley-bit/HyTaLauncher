@@ -89,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: "79e0c23480ff85dc68de79e2cd6334add97e48f7f4865d17686dd6ea81a47e8c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.11"
   fake_async:
     dependency: transitive
     description:
@@ -117,10 +125,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: ab13ae8ef5580a411c458d6207b6774a6c237d77ac37011b13994879f68a8810
+      sha256: d974b6ba2606371ac71dd94254beefb6fa81185bde0b59bdc1df09885da85fde
       url: "https://pub.dev"
     source: hosted
-    version: "8.3.7"
+    version: "10.3.8"
   file_selector:
     dependency: "direct main"
     description:
@@ -206,6 +214,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.0"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_markdown:
     dependency: "direct main"
     description:
@@ -222,6 +235,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.33"
+  flutter_svg:
+    dependency: transitive
+    description:
+      name: flutter_svg
+      sha256: "87fbd7c534435b6c5d9d98b01e1fd527812b82e68ddd8bd35fc45ed0fa8f0a95"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -232,6 +253,22 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  forui:
+    dependency: "direct main"
+    description:
+      name: forui
+      sha256: "86e47f0f21085889f655504e6445f78f61fdb35c624dd0c290eb25a589c3099e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.0"
+  forui_assets:
+    dependency: transitive
+    description:
+      name: forui_assets
+      sha256: "093b14bf9f55a8f84029af1f07aea75ae0575936d3f84f8ddb59becd9cd944a2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.0"
   glob:
     dependency: transitive
     description:
@@ -244,10 +281,10 @@ packages:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: ca1cc501704c47e478f69a667d7f2d882755ddf7baad3f60c3b1256594467022
+      sha256: ba03d03bcaa2f6cb7bd920e3b5027181db75ab524f8891c8bc3aa603885b8055
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.2"
+    version: "6.3.3"
   hooks:
     dependency: transitive
     description:
@@ -280,6 +317,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.20.2"
+  js:
+    dependency: transitive
+    description:
+      name: js
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.7"
   leak_tracker:
     dependency: transitive
     description:
@@ -368,6 +421,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  nitrogen_flutter_svg:
+    dependency: transitive
+    description:
+      name: nitrogen_flutter_svg
+      sha256: "2c473caaeeeddb11a437e72f9d112622619493ce22dcd6b41f7364cb999b8e2b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
+  nitrogen_types:
+    dependency: transitive
+    description:
+      name: nitrogen_types
+      sha256: "04c3e921fe59a47710b81f6bfd3c4dfeb819ca16e25ad6824dcc5b44ca39ed46"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0+1"
   objective_c:
     dependency: transitive
     description:
@@ -384,6 +453,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  path_parsing:
+    dependency: transitive
+    description:
+      name: path_parsing
+      sha256: "883402936929eac138ee0a45da5b0f2c80f89913e6dc3bf77eb65b84b409c6ca"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   path_provider:
     dependency: transitive
     description:
@@ -432,6 +509,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      sha256: "1a97266a94f7350d30ae522c0af07890c70b8e62c71e8e3920d1db4d23c057d1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.1"
+  phosphor_flutter:
+    dependency: "direct main"
+    description:
+      name: phosphor_flutter
+      sha256: "8a14f238f28a0b54842c5a4dc20676598dd4811fcba284ed828bd5a262c11fde"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   platform:
     dependency: transitive
     description:
@@ -573,6 +666,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  sugar:
+    dependency: transitive
+    description:
+      name: sugar
+      sha256: "9bfbba7793b5e3650003fca22a857a1d8485e99bf17558cad406a74ba5c4aa3c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   synchronized:
     dependency: transitive
     description:
@@ -613,6 +714,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.2"
+  vector_graphics:
+    dependency: transitive
+    description:
+      name: vector_graphics
+      sha256: a4f059dc26fc8295b5921376600a194c4ec7d55e72f2fe4c7d2831e103d461e6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.19"
+  vector_graphics_codec:
+    dependency: transitive
+    description:
+      name: vector_graphics_codec
+      sha256: "99fd9fbd34d9f9a32efd7b6a6aae14125d8237b10403b422a6a6dfeac2806146"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.13"
+  vector_graphics_compiler:
+    dependency: transitive
+    description:
+      name: vector_graphics_compiler
+      sha256: d354a7ec6931e6047785f4db12a1f61ec3d43b207fc0790f863818543f8ff0dc
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.19"
   vector_math:
     dependency: transitive
     description:
@@ -653,6 +778,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.6.1"
   yaml:
     dependency: transitive
     description:
