@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:http/http.dart' as http;
@@ -16,20 +15,49 @@ class Butler {
     final butlerExe = p.join(butlerDir, 'butler');
 
     if (await File(butlerExe).exists()) {
-
       await Process.run('chmod', ['+x', butlerExe]);
       return butlerExe;
     }
 
     await Directory(butlerDir).create(recursive: true);
 
-    print('Downloading Butler...');
+    print('Downloading Butler from broth.itch.zone...');
 
-    const butlerUrl = "https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default";
+    const butlerUrl = "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default";
     final zipPath = p.join(launcherDir, 'cache', 'butler.zip');
     await Directory(p.join(launcherDir, 'cache')).create(recursive: true);
 
-    await _downloadFile(butlerUrl, zipPath);
+    int maxRetries = 3;
+    Exception? lastError;
+    
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        print('Download attempt $attempt/$maxRetries...');
+        await _downloadFile(butlerUrl, zipPath);
+        
+        final file = File(zipPath);
+        if (!await file.exists()) {
+          throw Exception('Download failed: file not created');
+        }
+        final size = await file.length();
+        if (size < 1000000) {
+          throw Exception('Download incomplete: file too small ($size bytes)');
+        }
+        
+        print('Download successful ($size bytes)');
+        break;
+      } catch (e) {
+        lastError = e is Exception ? e : Exception(e.toString());
+        print('Download attempt $attempt failed: $e');
+        if (attempt < maxRetries) {
+          await Future.delayed(Duration(seconds: 2 * attempt));
+        }
+      }
+    }
+    
+    if (!await File(zipPath).exists()) {
+      throw Exception('Failed to download Butler after $maxRetries attempts: $lastError');
+    }
 
     print('Extracting Butler...');
     final bytes = await File(zipPath).readAsBytes();
@@ -38,7 +66,22 @@ class Butler {
     
     await File(zipPath).delete();
 
+    if (!await File(butlerExe).exists()) {
+      throw Exception('Butler extraction failed: executable not found at $butlerExe');
+    }
+
     await Process.run('chmod', ['+x', butlerExe]);
+    
+    final lib7z = p.join(butlerDir, '7z.so');
+    final libc7zip = p.join(butlerDir, 'libc7zip.so');
+    if (await File(lib7z).exists()) {
+      await Process.run('chmod', ['+x', lib7z]);
+    }
+    if (await File(libc7zip).exists()) {
+      await Process.run('chmod', ['+x', libc7zip]);
+    }
+    
+    print('Butler ready at $butlerExe');
     return butlerExe;
   }
 
@@ -55,7 +98,6 @@ class Butler {
 
     onStatus("Applying patch...");
 
-
     final args = [
       'apply',
       '--staging-dir',
@@ -65,7 +107,6 @@ class Butler {
     ];
 
     print('Running: $butlerExe ${args.join(" ")}');
-
 
     await Process.run('chmod', ['+x', butlerExe]);
 
