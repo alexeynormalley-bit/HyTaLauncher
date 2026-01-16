@@ -53,6 +53,8 @@ flutter run -d linux
    - Import new mods via the "IMPORT" tab.
 4. **Logs**: Check the "LOGS" tab for game output and errors.
 
+## Made With Antigravity (Claude 4.5 Opus, Gemini 3 Pro)
+
 ## License
 
 MIT License.
