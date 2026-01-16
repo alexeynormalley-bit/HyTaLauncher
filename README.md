@@ -11,6 +11,7 @@
 - **Texture editor Menu**
 - **Version Control**
 - **AI Helper**
+- **Worlds Menu**
 
 ## Installation
 
